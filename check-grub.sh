@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if grub-file --is-x86-multiboot myos.bin; then
+if grub-file --is-x86-multiboot ./build/myos.bin; then
   echo multiboot confirmed
   exit 0
 else

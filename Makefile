@@ -11,7 +11,7 @@ OS_BIN_FILE := myos.bin
 OS_BIN := $(BUILD_DIR)/$(OS_BIN_FILE)
 OS_ISO := myos.iso
 
-all: $(BOOT_OBJS) $(KERNEL_OBJS)
+all: $(OS_ISO)
 
 $(BOOT_OBJS): $(BOOT_SRCS)
 	nasm -felf32 $< -o $@
@@ -20,12 +20,13 @@ $(KERNEL_OBJS): $(KERNEL_SRCS)
 	i686-elf-gcc -c $< -o $@ -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 $(OS_BIN): $(KERNEL_OBJS) $(BOOT_OBJS)
-	i686-elf-gcc -T linker.ld -o $@ -ffreestanding -O2 -nostdlib $< -lgcc
+	i686-elf-gcc -T linker.ld -o $@ -ffreestanding -O2 -nostdlib $^ -lgcc
 
 $(OS_ISO): $(OS_BIN)
+	mkdir -p $(ISO_DIR)/boot/grub
 	cp $< $(ISO_DIR)/boot/$(OS_BIN_FILE)
 	cp grub.cfg $(ISO_DIR)/boot/grub/
-	grub-mkrescue -o $@ --verbose $(ISO_DIR)
+	grub-mkrescue -o $@ $(ISO_DIR)
 
 .PHONY: run-qemu
 run-qemu: $(OS_ISO)
@@ -33,4 +34,4 @@ run-qemu: $(OS_ISO)
 
 clean: 
 	rm -f $(BUILD_DIR)/*
-	rm -f $(ISO_DIR)/*
+	rm -rf $(ISO_DIR)/*

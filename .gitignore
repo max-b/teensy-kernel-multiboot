@@ -1,3 +1,5 @@
 *.iso
 *.o
 *.bin
+build/*
+isodir/*
