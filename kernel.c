@@ -4,6 +4,7 @@
 
 #include "io.h"
 #include "serial.h"
+#include "tables.h"
 
 /* Check if the compiler thinks we are targeting the wrong operating system. */
 #if defined(__linux__)
@@ -18,6 +19,8 @@
 
 void kernel_main(void)
 {
+  gdt_init();
+
 	/* Initialize framebuffer */
 	framebuffer_initialize();
 

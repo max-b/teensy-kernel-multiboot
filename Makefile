@@ -4,10 +4,10 @@ ISO_DIR=./isodir
 BOOT_SRCS := boot.asm
 BOOT_OBJS := $(patsubst %.asm, $(BUILD_DIR)/%.asm.o, $(BOOT_SRCS))
 
-INCLUDE_SRCS_ASM := io.asm interrupt-handlers.asm
+INCLUDE_SRCS_ASM := io.asm interrupt-handlers.asm tables.asm
 INCLUDE_OBJS_ASM := $(patsubst %.asm, $(BUILD_DIR)/%.asm.o, $(INCLUDE_SRCS_ASM))
 
-KERNEL_SRCS := kernel.c io.c str.c serial.c
+KERNEL_SRCS := kernel.c io.c str.c serial.c tables.c
 KERNEL_OBJS := $(patsubst %.c, $(BUILD_DIR)/%.c.o, $(KERNEL_SRCS))
 
 HEADERS = $(wildcard *.h)
