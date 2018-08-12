@@ -23,7 +23,7 @@ struct gdt_entry {
    */
   unsigned int  flags : 4;
   uint8_t base_high;     /* The last 8 bits of the base; */
- 
+
 } __attribute__((packed));  /* It needs to be packed like this, 64 bits */
 
 typedef struct gdt_entry gdt_entry_t;

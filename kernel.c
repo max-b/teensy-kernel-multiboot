@@ -21,11 +21,11 @@ void kernel_main(void)
 {
   gdt_init();
 
-	/* Initialize framebuffer */
-	framebuffer_initialize();
+  /* Initialize framebuffer */
+  framebuffer_initialize();
 
-	framebuffer_writeline("newline??");
-	framebuffer_writestring("Helloooooo kernel world");
+  framebuffer_writeline("newline??");
+  framebuffer_writestring("Helloooooo kernel world");
 
   serial_initialize(SERIAL_COM1_BASE, 1);
   serial_writestring(SERIAL_COM1_BASE, "Helloooo serial port?");
