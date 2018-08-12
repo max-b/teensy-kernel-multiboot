@@ -1,26 +1,35 @@
 BUILD_DIR=./build
 ISO_DIR=./isodir
 
-BOOT_SRCS := $(wildcard *.asm)
-BOOT_OBJS := $(patsubst %.asm, $(BUILD_DIR)/%.o, $(BOOT_SRCS))
+BOOT_SRCS := boot.asm
+BOOT_OBJS := $(patsubst %.asm, $(BUILD_DIR)/%.asm.o, $(BOOT_SRCS))
 
-KERNEL_SRCS := kernel.c
-KERNEL_OBJS := $(patsubst %.c, $(BUILD_DIR)/%.o, $(KERNEL_SRCS))
+INCLUDE_SRCS_ASM := io.asm interrupt-handlers.asm
+INCLUDE_OBJS_ASM := $(patsubst %.asm, $(BUILD_DIR)/%.asm.o, $(INCLUDE_SRCS_ASM))
+
+KERNEL_SRCS := kernel.c io.c str.c serial.c
+KERNEL_OBJS := $(patsubst %.c, $(BUILD_DIR)/%.c.o, $(KERNEL_SRCS))
+
+HEADERS = $(wildcard *.h)
 
 OS_BIN_FILE := myos.bin
 OS_BIN := $(BUILD_DIR)/$(OS_BIN_FILE)
 OS_ISO := myos.iso
 
+.PHONY: all
 all: $(OS_ISO)
 
-$(BOOT_OBJS): $(BOOT_SRCS)
+.PHONY: kernel
+kernel: $(KERNEL_OBJS)
+
+$(BUILD_DIR)/%.asm.o: %.asm
 	nasm -felf32 $< -o $@
 
-$(KERNEL_OBJS): $(KERNEL_SRCS)
+$(BUILD_DIR)/%.c.o: %.c $(HEADERS)
 	i686-elf-gcc -c $< -o $@ -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
-$(OS_BIN): $(KERNEL_OBJS) $(BOOT_OBJS)
-	i686-elf-gcc -T linker.ld -o $@ -ffreestanding -O2 -nostdlib $^ -lgcc
+$(OS_BIN): $(KERNEL_OBJS) $(BOOT_OBJS) $(INCLUDE_OBJS_ASM)
+	i686-elf-gcc -T linker.ld -o $@ -ffreestanding -O2 -nostdlib $? -lgcc
 
 $(OS_ISO): $(OS_BIN)
 	mkdir -p $(ISO_DIR)/boot/grub
@@ -30,8 +39,8 @@ $(OS_ISO): $(OS_BIN)
 
 .PHONY: run-qemu
 run-qemu: $(OS_ISO)
-	./check-grub.sh && qemu-system-i386 -cdrom $<
+	./check-grub.sh && qemu-system-i386 -serial stdio -cdrom $<
 
-clean: 
+clean:
 	rm -f $(BUILD_DIR)/*
 	rm -rf $(ISO_DIR)/*
