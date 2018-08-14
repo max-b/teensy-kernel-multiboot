@@ -4,10 +4,10 @@ ISO_DIR=./isodir
 BOOT_SRCS := boot.asm
 BOOT_OBJS := $(patsubst %.asm, $(BUILD_DIR)/%.asm.o, $(BOOT_SRCS))
 
-INCLUDE_SRCS_ASM := io.asm interrupt-handlers.asm tables.asm
+INCLUDE_SRCS_ASM := io.asm interrupts.asm tables.asm
 INCLUDE_OBJS_ASM := $(patsubst %.asm, $(BUILD_DIR)/%.asm.o, $(INCLUDE_SRCS_ASM))
 
-KERNEL_SRCS := kernel.c io.c str.c serial.c tables.c
+KERNEL_SRCS := kernel.c io.c str.c serial.c tables.c interrupts.c
 KERNEL_OBJS := $(patsubst %.c, $(BUILD_DIR)/%.c.o, $(KERNEL_SRCS))
 
 HEADERS = $(wildcard *.h)
@@ -39,7 +39,7 @@ $(OS_ISO): $(OS_BIN)
 
 .PHONY: run-qemu
 run-qemu: $(OS_ISO)
-	./check-grub.sh && qemu-system-i386 -serial stdio -cdrom $<
+	./check-grub.sh && qemu-system-i386 -serial stdio -d guest_errors -cdrom $<
 
 clean:
 	rm -f $(BUILD_DIR)/*

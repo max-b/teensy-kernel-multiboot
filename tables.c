@@ -58,8 +58,8 @@ void gdt_init(void) {
   gdt_ptr.base = (uint32_t) &gdt_entries;
 
   gdt_entries[0] = null_entry;
-  gdt_entries[1] = code_entry;
-  gdt_entries[2] = data_entry;
+  gdt_entries[1] = code_entry; /* selector 0x08 */
+  gdt_entries[2] = data_entry; /* selector  0x10 */
 
   gdt_load_and_set((uint32_t) &gdt_ptr);
 }

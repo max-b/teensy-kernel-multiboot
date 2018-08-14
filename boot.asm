@@ -78,6 +78,9 @@ _start:
 	extern kernel_main
 	call kernel_main
 
+	; testing interrupts :)
+	; int 20
+
 	; If the system has nothing more to do, put the computer into an
 	; infinite loop. To do that:
 	; 1) Disable interrupts with cli (clear interrupt enable in eflags).

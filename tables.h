@@ -32,6 +32,7 @@ struct gdt_ptr {
   uint16_t limit;          /* Size of gdt table in bytes*/
   uint32_t base;           /* Address to the first gdt entry */
 } __attribute__((packed));
+
 typedef struct gdt_ptr gdt_ptr_t;
 
 void gdt_load_and_set(uint32_t);

@@ -5,6 +5,7 @@
 #include "io.h"
 #include "serial.h"
 #include "tables.h"
+#include "interrupts.h"
 
 /* Check if the compiler thinks we are targeting the wrong operating system. */
 #if defined(__linux__)
@@ -19,10 +20,11 @@
 
 void kernel_main(void)
 {
-  gdt_init();
-
   /* Initialize framebuffer */
   framebuffer_initialize();
+
+  gdt_init();
+  idt_init();
 
   framebuffer_writeline("newline??");
   framebuffer_writestring("Helloooooo kernel world");
@@ -30,6 +32,10 @@ void kernel_main(void)
   serial_initialize(SERIAL_COM1_BASE, 1);
   serial_writestring(SERIAL_COM1_BASE, "Helloooo serial port?");
 
-  fprintf(SERIAL, "printing to serial");
+  fprintf(SERIAL, "printing to serial\n");
   fprintf(FRAMEBUFFER, "printing to framebuffer");
+
+  for(;;) {
+    asm("hlt");
+  }
 }
