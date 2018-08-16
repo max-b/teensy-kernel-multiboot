@@ -26,14 +26,17 @@ void kernel_main(void)
   gdt_init();
   idt_init();
 
-  framebuffer_writeline("newline??");
-  framebuffer_writestring("Helloooooo kernel world");
+  framebuffer_writeline("Helloooooo kernel world");
+  framebuffer_writeline("Now we can even read from the keyboard :)");
 
   serial_initialize(SERIAL_COM1_BASE, 1);
   serial_writestring(SERIAL_COM1_BASE, "Helloooo serial port?");
 
   fprintf(SERIAL, "printing to serial\n");
   fprintf(FRAMEBUFFER, "printing to framebuffer");
+
+  fprintf(FRAMEBUFFER, "printing a format string: %%\n", 0x11);
+  fprintf(SERIAL, "printing a format string: %%\n", 0x11);
 
   for(;;) {
     asm("hlt");

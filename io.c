@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdarg.h>
 
 #include "io.h"
 #include "serial.h"
@@ -111,32 +112,44 @@ void framebuffer_putentryat(char c, uint8_t color, size_t x, size_t y) {
 	framebuffer_buffer[index] = vga_entry(c, color);
 }
 
+void framebuffer_clearline(size_t row) {
+  for (size_t i = 0; i < VGA_WIDTH; i++) {
+    framebuffer_putentryat(0, framebuffer_color, i, row);
+  }
+}
+
 /** framebuffer_putchar:
  *  Puts a character in the framebuffer
  *
  *  @param c the character to put
  */
 void framebuffer_putchar(char c) {
-	framebuffer_putentryat(c, framebuffer_color, framebuffer_column, framebuffer_row);
+  if (c == 0x0a) {
+    framebuffer_newline();
+  } else {
+    framebuffer_putentryat(c, framebuffer_color, framebuffer_column, framebuffer_row);
 
-	if (++framebuffer_column == VGA_WIDTH) {
-		framebuffer_column = 0;
-		if (++framebuffer_row == VGA_HEIGHT) {
-			framebuffer_row = 0;
+    if (++framebuffer_column == VGA_WIDTH) {
+      framebuffer_column = 0;
+      if (++framebuffer_row == VGA_HEIGHT) {
+        framebuffer_row = 0;
+      }
     }
-	}
 
-  framebuffer_move_cursor((framebuffer_row) * VGA_WIDTH + framebuffer_column);
+    framebuffer_move_cursor((framebuffer_row) * VGA_WIDTH + framebuffer_column);
+  }
 }
 
 /** framebuffer_newline:
  *  Moves the cursor to a new line
  *
  */
-void framebuffer_newline() {
+void framebuffer_newline(void) {
   if (++framebuffer_row == VGA_HEIGHT) {
     framebuffer_row = 0;
   }
+
+  framebuffer_clearline(framebuffer_row);
 
   framebuffer_column = 0;
 
@@ -180,10 +193,28 @@ void framebuffer_writeline(const char* data) {
  *  @param output the device to write output to
  *  @param string pointer to the string to write
  */
-void fprintf(unsigned short output, const char* string) {
+void fprintf(unsigned short output, const char* string, ...) {
+  size_t i;
+  va_list args;
+  char formatted[strlen(string) + 1];
+
+  size_t val_count = format_param_count(string);
+
+  uint8_t vals[val_count];
+
+  va_start(args, val_count);
+
+  for (i = 0; i < val_count; i++) {
+    vals[i] = va_arg(args, int);
+  }
+
+  va_end(args);
+
+  format_string(formatted, string, vals);
+
   if (output == SERIAL) {
-    serial_writestring(SERIAL_COM1_BASE, string);
+    serial_writestring(SERIAL_COM1_BASE, formatted);
   } else if (output == FRAMEBUFFER) {
-    framebuffer_writestring(string);
+    framebuffer_writestring(formatted);
   }
 }

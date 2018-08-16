@@ -29,9 +29,6 @@ void interrupt_handler_17(void);
 void interrupt_handler_18(void);
 void interrupt_handler_19(void);
 
-void interrupt_handler_20(void);
-void interrupt_handler_21(void);
-
 void interrupt_handler_32(void);
 void interrupt_handler_33(void);
 
@@ -44,29 +41,22 @@ void interrupt_handler(__attribute__((unused)) cpu_state_t cpu, __attribute__((u
   unsigned char scan_code;
   char *message = "key: _\n";
 
-  fprintf(SERIAL, "interrupt handler!!\n");
+  fprintf(SERIAL, "interrupt handler number: %%\n", info.idt_index);
 
   switch (info.idt_index) {
-    case 0:
-      fprintf(SERIAL, "interrupt number 0");
-      break;
-    case 1:
-      fprintf(SERIAL, "interrupt number 1\n");
-      break;
-    case 20:
-      fprintf(SERIAL, "interrupt number 20\n");
-      break;
-    case 21:
-      fprintf(SERIAL, "interrupt number 21\n");
-      break;
-    case 32:
-      fprintf(SERIAL, "interrupt number 32\n");
-      break;
     case 33:
       scan_code = inb(0x60);
       message[5] = scan_code;
-      fprintf(SERIAL, "interrupt number 33\n");
-      fprintf(SERIAL, message);
+      fprintf(SERIAL, "interrupt number %%, key: %%\n", 33, scan_code);
+      fprintf(FRAMEBUFFER, "key: %%\n", scan_code);
+      if (scan_code == 0x50) {
+        fprintf(SERIAL, "down\n");
+        fprintf(FRAMEBUFFER, "down\n");
+      } else if (scan_code == 0x48) {
+        fprintf(SERIAL, "up\n");
+        fprintf(FRAMEBUFFER, "up\n");
+      }
+
       break;
     default:
       fprintf(SERIAL, "interrupt number not in list\n");
@@ -120,9 +110,6 @@ void idt_init(void) {
 
   set_idt_entry(0, (uint32_t) &interrupt_handler_0, IDT_INTERRUPT_GATE_TYPE, PL0);
   set_idt_entry(1, (uint32_t) &interrupt_handler_1, IDT_INTERRUPT_GATE_TYPE, PL0);
-
-  set_idt_entry(20, (uint32_t) &interrupt_handler_20, IDT_INTERRUPT_GATE_TYPE, PL0);
-  set_idt_entry(21, (uint32_t) &interrupt_handler_21, IDT_INTERRUPT_GATE_TYPE, PL0);
 
   set_idt_entry(32, (uint32_t) &interrupt_handler_32, IDT_INTERRUPT_GATE_TYPE, PL0);
   set_idt_entry(33, (uint32_t) &interrupt_handler_33, IDT_INTERRUPT_GATE_TYPE, PL0);
