@@ -55,6 +55,7 @@ void interrupt_handler(__attribute__((unused)) cpu_state_t cpu, __attribute__((u
       } else if (scan_code == 0x48) {
         fprintf(SERIAL, "up\n");
         fprintf(FRAMEBUFFER, "up\n");
+
       }
 
       break;
@@ -63,7 +64,9 @@ void interrupt_handler(__attribute__((unused)) cpu_state_t cpu, __attribute__((u
       break;
   }
 
-  pic_acknowledge();
+  if (info.idt_index >= 0x20 && info.idt_index <= 0x2f) {
+    pic_acknowledge();
+  }
 }
 
 void set_idt_entry(unsigned int n, uint32_t handler, unsigned int type, unsigned int privilege) {
@@ -111,8 +114,8 @@ void idt_init(void) {
   set_idt_entry(0, (uint32_t) &interrupt_handler_0, IDT_INTERRUPT_GATE_TYPE, PL0);
   set_idt_entry(1, (uint32_t) &interrupt_handler_1, IDT_INTERRUPT_GATE_TYPE, PL0);
 
-  set_idt_entry(32, (uint32_t) &interrupt_handler_32, IDT_INTERRUPT_GATE_TYPE, PL0);
-  set_idt_entry(33, (uint32_t) &interrupt_handler_33, IDT_INTERRUPT_GATE_TYPE, PL0);
+  set_idt_entry(IDT_TIMER_INTERRUPT_INDEX, (uint32_t) &interrupt_handler_32, IDT_INTERRUPT_GATE_TYPE, PL0);
+  set_idt_entry(IDT_KEYBOARD_INTERRUPT_INDEX, (uint32_t) &interrupt_handler_33, IDT_INTERRUPT_GATE_TYPE, PL0);
 
   load_idt((uint32_t) &idt_ptr);
 
