@@ -3,3 +3,4 @@
 *.bin
 build/*
 isodir/*
+.gdb_history

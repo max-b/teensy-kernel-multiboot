@@ -26,7 +26,7 @@ $(BUILD_DIR)/%.asm.o: %.asm
 	nasm -felf32 $< -o $@
 
 $(BUILD_DIR)/%.c.o: %.c $(HEADERS)
-	i686-elf-gcc -c $< -o $@ -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+	i686-elf-gcc -c $< -g -o $@ -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 $(OS_BIN): $(KERNEL_OBJS) $(BOOT_OBJS) $(INCLUDE_OBJS_ASM)
 	i686-elf-gcc -T linker.ld -o $@ -ffreestanding -O2 -nostdlib $? -lgcc
@@ -40,6 +40,10 @@ $(OS_ISO): $(OS_BIN)
 .PHONY: run-qemu
 run-qemu: $(OS_ISO)
 	./check-grub.sh && qemu-system-i386 -serial stdio -d guest_errors -cdrom $<
+
+.PHONY: run-qemu-debug
+run-qemu-debug: $(OS_ISO)
+	./check-grub.sh && qemu-system-i386 -s -serial stdio -d guest_errors -cdrom $<
 
 clean:
 	rm -f $(BUILD_DIR)/*
