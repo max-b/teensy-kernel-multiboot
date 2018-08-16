@@ -2,14 +2,15 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "interrupts.h"
 #include "io.h"
 #include "serial.h"
 #include "tables.h"
-#include "interrupts.h"
 
 /* Check if the compiler thinks we are targeting the wrong operating system. */
 #if defined(__linux__)
-#error "You are not using a cross-compiler, you will most certainly run into trouble"
+#error                                                                         \
+    "You are not using a cross-compiler, you will most certainly run into trouble"
 #endif
 
 /* This tutorial will only work for the 32-bit ix86 targets. */
@@ -17,9 +18,7 @@
 #error "This tutorial needs to be compiled with a ix86-elf compiler"
 #endif
 
-
-void kernel_main(void)
-{
+void kernel_main(void) {
   /* Initialize framebuffer */
   framebuffer_initialize();
 
@@ -38,7 +37,7 @@ void kernel_main(void)
   fprintf(FRAMEBUFFER, "printing a format string: %%\n", 0x11);
   fprintf(SERIAL, "printing a format string: %%\n", 0x11);
 
-  for(;;) {
+  for (;;) {
     asm("hlt");
   }
 }

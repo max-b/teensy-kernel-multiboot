@@ -4,7 +4,6 @@
 
 #include "str.h"
 
-
 /** strlen
  *  Returns the length of a null terminated string
  *
@@ -18,12 +17,12 @@ size_t strlen(const char *str) {
   return len;
 }
 
-size_t format_param_count(const char* str) {
+size_t format_param_count(const char *str) {
   size_t num = 0;
   size_t i;
 
   for (i = 0; i < strlen(str); i++) {
-    if (str[i] == '%' && str[i+1] == '%') {
+    if (str[i] == '%' && str[i + 1] == '%') {
       num += 1;
       i += 1;
     }
@@ -62,9 +61,9 @@ void format_string(char *output, const char *input, uint8_t *vals) {
   size_t val_index = 0;
 
   for (i = 0; i < strlen(input); i++) {
-    if (input[i] == '%' && input[i+1] == '%') {
-      output[i] = (char) hex_representation(vals[val_index] >> 4);
-      output[i+1] = (char) hex_representation(vals[val_index]);
+    if (input[i] == '%' && input[i + 1] == '%') {
+      output[i] = (char)hex_representation(vals[val_index] >> 4);
+      output[i + 1] = (char)hex_representation(vals[val_index]);
 
       val_index += 1;
       i += 1;

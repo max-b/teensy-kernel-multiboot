@@ -45,6 +45,10 @@ run-qemu: $(OS_ISO)
 run-qemu-debug: $(OS_ISO)
 	./check-grub.sh && qemu-system-i386 -s -serial stdio -d guest_errors -cdrom $<
 
+.PHONY: format
+format:
+	clang-format -i *.c && clang-format -i *.h
+
 clean:
 	rm -f $(BUILD_DIR)/*
 	rm -rf $(ISO_DIR)/*

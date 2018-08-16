@@ -9,5 +9,4 @@
 #define SEGSEL_KERNEL_CS 0x08
 #define SEGSEL_KERNEL_DS 0x10
 
-
 #endif

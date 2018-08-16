@@ -2,8 +2,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "serial.h"
 #include "io.h"
+#include "serial.h"
 #include "str.h"
 
 /* The I/O ports */
@@ -17,12 +17,9 @@
  *  @param divisor  The divisor
  */
 void serial_configure_baud_rate(unsigned short com, unsigned short divisor) {
-  outb(SERIAL_LINE_COMMAND_PORT(com),
-      SERIAL_LINE_ENABLE_DLAB);
-  outb(SERIAL_DATA_PORT(com),
-      (divisor >> 8) & 0x00FF);
-  outb(SERIAL_DATA_PORT(com),
-      divisor & 0x00FF);
+  outb(SERIAL_LINE_COMMAND_PORT(com), SERIAL_LINE_ENABLE_DLAB);
+  outb(SERIAL_DATA_PORT(com), (divisor >> 8) & 0x00FF);
+  outb(SERIAL_DATA_PORT(com), divisor & 0x00FF);
 }
 
 /** serial_configure_line:
@@ -48,9 +45,9 @@ void serial_configure_line(unsigned short com) {
  *  @param com  The serial port to configure
  */
 void serial_configure_buffers(unsigned short com) {
-/** Bit:     | 7 6 | 5  | 4 | 3   | 2   | 1   | 0 |
-  * Content: | lvl | bs | r | dma | clt | clr | e |
-  */
+  /** Bit:     | 7 6 | 5  | 4 | 3   | 2   | 1   | 0 |
+    * Content: | lvl | bs | r | dma | clt | clr | e |
+    */
   outb(SERIAL_FIFO_COMMAND_PORT(com), 0xc7);
 }
 
@@ -60,9 +57,9 @@ void serial_configure_buffers(unsigned short com) {
  *  @param com  The serial port to configure
  */
 void serial_configure_modem(unsigned short com) {
-/** Bit:     | 7 | 6 | 5  | 4  | 3   | 2   | 1   | 0   |
-  * Content: | r | r | af | lb | ao2 | ao1 | rts | dtr |
-  */
+  /** Bit:     | 7 | 6 | 5  | 4  | 3   | 2   | 1   | 0   |
+    * Content: | r | r | af | lb | ao2 | ao1 | rts | dtr |
+    */
   outb(SERIAL_MODEM_COMMAND_PORT(com), 0x03);
 }
 
@@ -99,7 +96,7 @@ int serial_is_transmit_fifo_empty(unsigned int com) {
  *  @param data a pointer to the start of the data to write
  *  @param size the number of bytes to write
  */
-void serial_write(unsigned int com, const char* data, size_t size) {
+void serial_write(unsigned int com, const char *data, size_t size) {
   size_t count = 0;
   while (count < size) {
     if (serial_is_transmit_fifo_empty(com)) {
@@ -114,6 +111,6 @@ void serial_write(unsigned int com, const char* data, size_t size) {
  *  @param com the COM port
  *  @param data a pointer to the start of the string to write
  */
-void serial_writestring(unsigned int com, const char* data) {
+void serial_writestring(unsigned int com, const char *data) {
   serial_write(com, data, strlen(data));
 }

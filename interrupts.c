@@ -2,9 +2,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "constants.h"
 #include "interrupts.h"
 #include "io.h"
-#include "constants.h"
 
 idt_entry_t idt_entries[IDT_NUM_ENTRIES];
 
@@ -37,31 +37,32 @@ void pic_acknowledge(void) {
   outb(PIC2_PORT_A, PIC_EOI);
 }
 
-void interrupt_handler(__attribute__((unused)) cpu_state_t cpu, __attribute__((unused)) idt_info_t info, __attribute__((unused)) stack_state_t stack) {
+void interrupt_handler(__attribute__((unused)) cpu_state_t cpu,
+                       __attribute__((unused)) idt_info_t info,
+                       __attribute__((unused)) stack_state_t stack) {
   unsigned char scan_code;
   char *message = "key: _\n";
 
   fprintf(SERIAL, "interrupt handler number: %%\n", info.idt_index);
 
   switch (info.idt_index) {
-    case 33:
-      scan_code = inb(0x60);
-      message[5] = scan_code;
-      fprintf(SERIAL, "interrupt number %%, key: %%\n", 33, scan_code);
-      fprintf(FRAMEBUFFER, "key: %%\n", scan_code);
-      if (scan_code == 0x50) {
-        fprintf(SERIAL, "down\n");
-        fprintf(FRAMEBUFFER, "down\n");
-      } else if (scan_code == 0x48) {
-        fprintf(SERIAL, "up\n");
-        fprintf(FRAMEBUFFER, "up\n");
+  case 33:
+    scan_code = inb(0x60);
+    message[5] = scan_code;
+    fprintf(SERIAL, "interrupt number %%, key: %%\n", 33, scan_code);
+    fprintf(FRAMEBUFFER, "key: %%\n", scan_code);
+    if (scan_code == 0x50) {
+      fprintf(SERIAL, "down\n");
+      fprintf(FRAMEBUFFER, "down\n");
+    } else if (scan_code == 0x48) {
+      fprintf(SERIAL, "up\n");
+      fprintf(FRAMEBUFFER, "up\n");
+    }
 
-      }
-
-      break;
-    default:
-      fprintf(SERIAL, "interrupt number not in list\n");
-      break;
+    break;
+  default:
+    fprintf(SERIAL, "interrupt number not in list\n");
+    break;
   }
 
   if (info.idt_index >= 0x20 && info.idt_index <= 0x2f) {
@@ -69,19 +70,21 @@ void interrupt_handler(__attribute__((unused)) cpu_state_t cpu, __attribute__((u
   }
 }
 
-void set_idt_entry(unsigned int n, uint32_t handler, unsigned int type, unsigned int privilege) {
-  idt_entries[n] = (idt_entry_t) {
-    .offset_low=handler & 0x0000ffff,
-    .selector=SEGSEL_KERNEL_CS,
-    .unused=0x0,
-    /* type is either interrupt or trap depending on last bit */
-    .type=0b1110 | type,
-    .attributes=0b1000 | (privilege << 1),
-    .offset_high=handler >> 16,
+void set_idt_entry(unsigned int n, uint32_t handler, unsigned int type,
+                   unsigned int privilege) {
+  idt_entries[n] = (idt_entry_t){
+      .offset_low = handler & 0x0000ffff,
+      .selector = SEGSEL_KERNEL_CS,
+      .unused = 0x0,
+      /* type is either interrupt or trap depending on last bit */
+      .type = 0b1110 | type,
+      .attributes = 0b1000 | (privilege << 1),
+      .offset_high = handler >> 16,
   };
 }
 
-/* from https://www-s.acm.illinois.edu/sigops/2007/roll_your_own/i386/irq.html */
+/* from https://www-s.acm.illinois.edu/sigops/2007/roll_your_own/i386/irq.html
+ */
 void init_pic(void) {
   /* ICW1 */
   outb(PIC1_PORT_A, PIC1_ICW1); /* Master port A */
@@ -109,15 +112,19 @@ void init_pic(void) {
 void idt_init(void) {
   idt_ptr_t idt_ptr;
   idt_ptr.limit = IDT_NUM_ENTRIES * sizeof(idt_entry_t) - 1;
-  idt_ptr.base = (uint32_t) &idt_entries;
+  idt_ptr.base = (uint32_t)&idt_entries;
 
-  set_idt_entry(0, (uint32_t) &interrupt_handler_0, IDT_INTERRUPT_GATE_TYPE, PL0);
-  set_idt_entry(1, (uint32_t) &interrupt_handler_1, IDT_INTERRUPT_GATE_TYPE, PL0);
+  set_idt_entry(0, (uint32_t)&interrupt_handler_0, IDT_INTERRUPT_GATE_TYPE,
+                PL0);
+  set_idt_entry(1, (uint32_t)&interrupt_handler_1, IDT_INTERRUPT_GATE_TYPE,
+                PL0);
 
-  set_idt_entry(IDT_TIMER_INTERRUPT_INDEX, (uint32_t) &interrupt_handler_32, IDT_INTERRUPT_GATE_TYPE, PL0);
-  set_idt_entry(IDT_KEYBOARD_INTERRUPT_INDEX, (uint32_t) &interrupt_handler_33, IDT_INTERRUPT_GATE_TYPE, PL0);
+  set_idt_entry(IDT_TIMER_INTERRUPT_INDEX, (uint32_t)&interrupt_handler_32,
+                IDT_INTERRUPT_GATE_TYPE, PL0);
+  set_idt_entry(IDT_KEYBOARD_INTERRUPT_INDEX, (uint32_t)&interrupt_handler_33,
+                IDT_INTERRUPT_GATE_TYPE, PL0);
 
-  load_idt((uint32_t) &idt_ptr);
+  load_idt((uint32_t)&idt_ptr);
 
   init_pic();
 

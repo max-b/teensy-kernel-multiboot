@@ -4,3 +4,4 @@
 build/*
 isodir/*
 .gdb_history
+compile_commands.json

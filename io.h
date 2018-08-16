@@ -25,10 +25,10 @@ unsigned char inb(unsigned short port);
 
 void framebuffer_initialize(void);
 void framebuffer_move_cursor(unsigned short pos);
-void framebuffer_writestring(const char* data);
-void framebuffer_writeline(const char* data);
+void framebuffer_writestring(const char *data);
+void framebuffer_writeline(const char *data);
 void framebuffer_newline(void);
 
-void fprintf(unsigned short output, const char* string, ...);
+void fprintf(unsigned short output, const char *string, ...);
 
 #endif /* INCLUDE_IO_H */
