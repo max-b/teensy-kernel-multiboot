@@ -86,3 +86,13 @@ no_error_code_interrupt_handler 19
 no_error_code_interrupt_handler 32 ; timer interrupt
 no_error_code_interrupt_handler 33 ; keyboard interrupt
 
+global test_divide_by_zero
+test_divide_by_zero:
+  xor bx, bx
+	div bx
+	ret
+
+global test_double_fault
+test_double_fault:
+	int 0x99
+	ret

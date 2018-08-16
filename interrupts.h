@@ -8,6 +8,8 @@
 #define IDT_INTERRUPT_GATE_TYPE 0
 #define IDT_TRAP_GATE_TYPE 1
 
+#define IDT_DIVIDE_ERROR_INDEX 0x00
+#define IDT_DOUBLE_FAULT_INDEX 0x08
 #define IDT_TIMER_INTERRUPT_INDEX 0x20
 #define IDT_KEYBOARD_INTERRUPT_INDEX 0x21
 
@@ -88,6 +90,8 @@ void load_idt(uint32_t address);
 
 void enable_interrupts(void);
 void disable_interrupts(void);
+void test_divide_by_zero(void);
+void test_double_fault(void);
 
 void idt_init(void);
 

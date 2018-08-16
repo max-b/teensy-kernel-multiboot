@@ -37,15 +37,24 @@ void pic_acknowledge(void) {
   outb(PIC2_PORT_A, PIC_EOI);
 }
 
-void interrupt_handler(__attribute__((unused)) cpu_state_t cpu,
-                       __attribute__((unused)) idt_info_t info,
+void interrupt_handler(__attribute__((unused)) cpu_state_t cpu, idt_info_t info,
                        __attribute__((unused)) stack_state_t stack) {
   unsigned char scan_code;
   char *message = "key: _\n";
 
-  fprintf(SERIAL, "interrupt handler number: %%\n", info.idt_index);
+  uint32_t idt_index = info.idt_index;
+
+  fprintf(SERIAL, "interrupt handler number: %%\n", idt_index);
 
   switch (info.idt_index) {
+  /* TODO: What do I do here to keep these from looping */
+  /* forever?? */
+  case IDT_DIVIDE_ERROR_INDEX:
+    fprintf(SERIAL, "Divide Erro\n");
+    break;
+  case IDT_DOUBLE_FAULT_INDEX:
+    fprintf(SERIAL, "Double Fault\n");
+    break;
   case 33:
     scan_code = inb(0x60);
     message[5] = scan_code;
@@ -65,6 +74,8 @@ void interrupt_handler(__attribute__((unused)) cpu_state_t cpu,
     break;
   }
 
+  /* TODO: Check that we only send PIC pic_acknowledge if */
+  /*       interrupt is from PIC? */
   if (info.idt_index >= 0x20 && info.idt_index <= 0x2f) {
     pic_acknowledge();
   }
@@ -114,10 +125,12 @@ void idt_init(void) {
   idt_ptr.limit = IDT_NUM_ENTRIES * sizeof(idt_entry_t) - 1;
   idt_ptr.base = (uint32_t)&idt_entries;
 
-  set_idt_entry(0, (uint32_t)&interrupt_handler_0, IDT_INTERRUPT_GATE_TYPE,
-                PL0);
+  set_idt_entry(IDT_DIVIDE_ERROR_INDEX, (uint32_t)&interrupt_handler_0,
+                IDT_INTERRUPT_GATE_TYPE, PL0);
   set_idt_entry(1, (uint32_t)&interrupt_handler_1, IDT_INTERRUPT_GATE_TYPE,
                 PL0);
+  set_idt_entry(IDT_DOUBLE_FAULT_INDEX, (uint32_t)&interrupt_handler_8,
+                IDT_INTERRUPT_GATE_TYPE, PL0);
 
   set_idt_entry(IDT_TIMER_INTERRUPT_INDEX, (uint32_t)&interrupt_handler_32,
                 IDT_INTERRUPT_GATE_TYPE, PL0);
