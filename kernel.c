@@ -5,7 +5,7 @@
 #include "interrupts.h"
 #include "io.h"
 #include "serial.h"
-#include "tables.h"
+#include "gdt.h"
 
 /* Check if the compiler thinks we are targeting the wrong operating system. */
 #if defined(__linux__)
